@@ -816,7 +816,7 @@ async function loadData({ refresh = false } = {}) {
   elements.refreshBtn.textContent = refresh ? "Reloading…" : "Loading…";
 
   try {
-    const history = await fetchJson(`${UOB_HISTORY_URL}?ts=${refresh ? Date.now() : "init"}`);
+    const history = await fetchJson(`${UOB_HISTORY_URL}?ts=${Date.now()}`);
     state.history = Array.isArray(history) ? history : [];
     state.latest = state.history.length ? state.history[state.history.length - 1] : null;
     ensureSelectedProduct();
