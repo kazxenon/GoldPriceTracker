@@ -93,6 +93,13 @@ a {
   line-height: 1.65;
 }
 
+.hero-helper {
+  margin: 18px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 64ch;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -188,6 +195,16 @@ a {
   gap: 6px;
   text-align: right;
   color: var(--muted);
+}
+
+.panel-note {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .controls-grid,

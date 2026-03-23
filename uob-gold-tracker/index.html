@@ -23,6 +23,10 @@
           <button id="refreshBtn" class="primary-button" type="button">Reload saved prices</button>
           <a class="ghost-link" href="https://www.uobgroup.com/online-rates/gold-and-silver-prices.page" target="_blank" rel="noreferrer">Open UOB source</a>
         </div>
+        <p class="hero-helper">
+          On GitHub Pages, UOB prices are refreshed by the repository’s GitHub Action. Run the manual workflow in GitHub, then tap
+          <strong>Reload saved prices</strong> here to pull the newest saved snapshot.
+        </p>
       </div>
       <div class="hero-card">
         <p class="mini-label">Default tracked product</p>
@@ -43,6 +47,14 @@
             <span id="uobTimestamp">Waiting for the first fetch…</span>
             <span id="appTimestamp"></span>
           </div>
+        </div>
+
+        <div class="panel-note">
+          Manual GitHub refresh flow:
+          1. Open your repository’s <strong>Actions</strong> tab.
+          2. Run <strong>Update UOB History</strong>.
+          3. Wait for the workflow to finish.
+          4. Tap <strong>Reload saved prices</strong> in this app.
         </div>
 
         <div class="controls-grid">

@@ -31,6 +31,16 @@ It runs every 6 hours and:
 
 The fetch script is in `scripts/update_uob_history.py`.
 
+## Manual UOB refresh on GitHub Pages
+
+You can also refresh UOB manually:
+
+1. Open your GitHub repository.
+2. Go to the `Actions` tab.
+3. Open `Update UOB History`.
+4. Click `Run workflow`.
+5. After it finishes, reload the GitHub Pages site and tap `Reload saved prices`.
+
 ## Optional local preview
 
 You can still preview it locally with any static server, for example:
