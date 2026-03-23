@@ -40,6 +40,8 @@ const elements = {
   forecastCards: document.getElementById("forecastCards"),
   forecastChart: document.getElementById("forecastChart"),
   forecastEmpty: document.getElementById("forecastEmpty"),
+  forecastCurrencySelect: document.getElementById("forecastCurrencySelect"),
+  forecastUnitSelect: document.getElementById("forecastUnitSelect"),
   holdingProductSelect: document.getElementById("holdingProductSelect"),
   holdingBoughtPriceInput: document.getElementById("holdingBoughtPriceInput"),
   addHoldingBtn: document.getElementById("addHoldingBtn"),
@@ -856,6 +858,8 @@ function renderForecastSection() {
   const forecast = state.globalGold.forecast || [];
   const selectedCurrency = state.globalGold.currency;
   const unit = state.globalGold.unit;
+  elements.forecastCurrencySelect.value = selectedCurrency;
+  elements.forecastUnitSelect.value = unit;
 
   if (!forecast.length) {
     elements.forecastCards.innerHTML = `
@@ -1171,6 +1175,22 @@ elements.globalGoldUnitSelect.addEventListener("change", (event) => {
 
 elements.globalGoldViewSelect.addEventListener("change", (event) => {
   state.globalGold.view = event.target.value;
+  loadGlobalGoldData();
+});
+
+elements.forecastCurrencySelect.addEventListener("change", (event) => {
+  state.globalGold.currency = event.target.value;
+  if (elements.globalGoldCurrencySelect) {
+    elements.globalGoldCurrencySelect.value = event.target.value;
+  }
+  loadGlobalGoldData();
+});
+
+elements.forecastUnitSelect.addEventListener("change", (event) => {
+  state.globalGold.unit = event.target.value;
+  if (elements.globalGoldUnitSelect) {
+    elements.globalGoldUnitSelect.value = event.target.value;
+  }
   loadGlobalGoldData();
 });
 

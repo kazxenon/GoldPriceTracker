@@ -283,6 +283,23 @@
           </div>
           <p class="table-note">Compact trend-based estimate from recent history. Use it as a reference, not a promise.</p>
         </div>
+        <div class="controls-grid forecast-controls">
+          <label class="control">
+            <span>Currency</span>
+            <select id="forecastCurrencySelect">
+              <option value="USD" selected>USD</option>
+              <option value="SGD">SGD</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Unit</span>
+            <select id="forecastUnitSelect">
+              <option value="ozt" selected>Troy ounce</option>
+              <option value="gram">Gram</option>
+              <option value="kg">Kilogram</option>
+            </select>
+          </label>
+        </div>
         <div class="forecast-grid" id="forecastCards">
           <article class="price-card history compact-card">
             <span class="price-label">Forecast</span>

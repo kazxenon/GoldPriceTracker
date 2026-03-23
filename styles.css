@@ -373,6 +373,10 @@ input[type="number"] {
   margin-bottom: 16px;
 }
 
+.forecast-controls {
+  margin-bottom: 16px;
+}
+
 .forecast-chart-wrap {
   min-height: 280px;
 }
