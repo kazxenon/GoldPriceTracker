@@ -24,6 +24,7 @@ const elements = {
   chartCanvas: document.getElementById("historyChart"),
   chartEmpty: document.getElementById("chartEmpty"),
   chartStatus: document.getElementById("chartStatus"),
+  historyChartTooltip: document.getElementById("historyChartTooltip"),
   globalGoldLatestValue: document.getElementById("globalGoldLatestValue"),
   globalGoldNote: document.getElementById("globalGoldNote"),
   globalGoldStartValue: document.getElementById("globalGoldStartValue"),
@@ -46,6 +47,8 @@ const state = {
   latest: null,
   history: [],
   selectedProductId: "GSA|1 GM",
+  chartHoverIndex: null,
+  chartGroupedPoints: [],
   globalGold: {
     currency: "USD",
     unit: "ozt",
@@ -330,6 +333,8 @@ function summarizeEntries(entries, granularity) {
       bankSell: entry.bankSell,
       bankBuy: entry.bankBuy,
       fetchedAt: entry.fetchedAt,
+      rawDate: entry.labelDate,
+      rawTime: entry.labelTime,
     });
   });
 
@@ -375,11 +380,15 @@ function updateSpotlight() {
 
 function drawChartToCanvas({ canvas, emptyState, entries, granularity }) {
   const summarized = summarizeEntries(entries, granularity);
+  state.chartGroupedPoints = canvas === elements.chartCanvas ? summarized : state.chartGroupedPoints;
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (summarized.length < 2) {
     emptyState.style.display = "grid";
+    if (canvas === elements.chartCanvas) {
+      elements.historyChartTooltip.classList.add("chart-tooltip-hidden");
+    }
     return;
   }
 
@@ -458,6 +467,48 @@ function drawChartToCanvas({ canvas, emptyState, entries, granularity }) {
   drawSeries("bankSell", "#d08b2e");
   drawSeries("bankBuy", "#1f7a64");
 
+  if (canvas === elements.chartCanvas && state.chartHoverIndex != null) {
+    const activePoint = summarized[state.chartHoverIndex];
+    if (activePoint) {
+      const x = xForIndex(state.chartHoverIndex);
+      const sellY = yForValue(activePoint.bankSell);
+      const buyY = yForValue(activePoint.bankBuy);
+
+      ctx.strokeStyle = "rgba(29, 36, 31, 0.35)";
+      ctx.beginPath();
+      ctx.moveTo(x, padding.top);
+      ctx.lineTo(x, height - padding.bottom);
+      ctx.stroke();
+
+      ctx.fillStyle = "#d08b2e";
+      ctx.beginPath();
+      ctx.arc(x, sellY, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#1f7a64";
+      ctx.beginPath();
+      ctx.arc(x, buyY, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      const tooltip = elements.historyChartTooltip;
+      tooltip.classList.remove("chart-tooltip-hidden");
+      tooltip.innerHTML = `
+        <strong>${activePoint.label}</strong>
+        <span>Bank sells: ${currency(activePoint.bankSell)}</span>
+        <span>Bank buys: ${currency(activePoint.bankBuy)}</span>
+        <span>Snapshot: ${activePoint.rawDate || ""} ${activePoint.rawTime ? `${activePoint.rawTime.slice(0,2)}:${activePoint.rawTime.slice(2,4)}:${activePoint.rawTime.slice(4,6)}` : ""}</span>
+      `;
+
+      const maxLeft = canvas.clientWidth - 210;
+      const left = Math.max(12, Math.min((x / canvas.width) * canvas.clientWidth + 12, maxLeft));
+      const top = Math.max(12, (Math.min(sellY, buyY) / canvas.height) * canvas.clientHeight - 96);
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+  } else if (canvas === elements.chartCanvas) {
+    elements.historyChartTooltip.classList.add("chart-tooltip-hidden");
+  }
+
   ctx.fillStyle = "#44514a";
   ctx.textAlign = "center";
 
@@ -473,6 +524,9 @@ function drawChart() {
   const productHistory = getProductHistory(state.selectedProductId);
   const filtered = applyRange(productHistory);
   const summarized = summarizeEntries(filtered, elements.granularitySelect.value);
+  if (state.chartHoverIndex != null && state.chartHoverIndex >= summarized.length) {
+    state.chartHoverIndex = null;
+  }
 
   elements.chartStatus.textContent = `${productHistory.length} raw snapshots, ${filtered.length} in selected window, ${summarized.length} grouped points shown.`;
 
@@ -886,6 +940,7 @@ elements.rangeSelect.addEventListener("change", () => {
 });
 
 elements.granularitySelect.addEventListener("change", () => {
+  state.chartHoverIndex = null;
   drawChart();
 });
 
@@ -923,6 +978,27 @@ elements.globalGoldChart.addEventListener("mousemove", (event) => {
 elements.globalGoldChart.addEventListener("mouseleave", () => {
   state.globalGold.hoverIndex = null;
   drawGlobalGoldChart();
+});
+
+elements.chartCanvas.addEventListener("mousemove", (event) => {
+  const points = state.chartGroupedPoints;
+  if (points.length < 2) {
+    return;
+  }
+
+  const rect = elements.chartCanvas.getBoundingClientRect();
+  const relativeX = ((event.clientX - rect.left) / rect.width) * elements.chartCanvas.width;
+  const paddingLeft = 82;
+  const plotWidth = elements.chartCanvas.width - 82 - 28;
+  const rawIndex = ((relativeX - paddingLeft) / plotWidth) * (points.length - 1);
+  const clampedIndex = Math.max(0, Math.min(points.length - 1, Math.round(rawIndex)));
+  state.chartHoverIndex = clampedIndex;
+  drawChart();
+});
+
+elements.chartCanvas.addEventListener("mouseleave", () => {
+  state.chartHoverIndex = null;
+  drawChart();
 });
 
 elements.addHoldingBtn.addEventListener("click", () => {
