@@ -121,6 +121,20 @@ function getAllProducts() {
   return state.latest?.items || [];
 }
 
+function snapshotSortKey(snapshot) {
+  const datePart = String(snapshot?.sourceDate || "");
+  const timePart = String(snapshot?.sourceTime || "").padStart(6, "0");
+  return `${datePart}|${timePart}`;
+}
+
+function getLatestSnapshot(history) {
+  if (!Array.isArray(history) || !history.length) {
+    return null;
+  }
+
+  return [...history].sort((left, right) => snapshotSortKey(left).localeCompare(snapshotSortKey(right))).at(-1) || null;
+}
+
 function ensureSelectedProduct() {
   const products = getAllProducts();
   if (!products.length) {
@@ -818,7 +832,7 @@ async function loadData({ refresh = false } = {}) {
   try {
     const history = await fetchJson(`${UOB_HISTORY_URL}?ts=${Date.now()}`);
     state.history = Array.isArray(history) ? history : [];
-    state.latest = state.history.length ? state.history[state.history.length - 1] : null;
+    state.latest = getLatestSnapshot(state.history);
     ensureSelectedProduct();
     syncUi();
   } catch (error) {

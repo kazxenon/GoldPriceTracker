@@ -119,6 +119,13 @@ def write_history(history: list[dict]) -> None:
     DATA_PATH.write_text(json.dumps(history, indent=2), encoding="utf-8")
 
 
+def snapshot_sort_key(snapshot: dict) -> tuple[str, str]:
+    return (
+        str(snapshot.get("sourceDate", "")),
+        str(snapshot.get("sourceTime", "")).zfill(6),
+    )
+
+
 def main() -> None:
     history = read_history()
     latest = normalize_snapshot(fetch_feed())
@@ -130,7 +137,7 @@ def main() -> None:
             return
 
     history.append(latest)
-    history.sort(key=lambda item: item.get("fetchedAt", ""))
+    history.sort(key=snapshot_sort_key)
     write_history(history)
     print(f"Saved new UOB snapshot for {latest['sourceDate']} {latest['sourceTime']}.")
 
