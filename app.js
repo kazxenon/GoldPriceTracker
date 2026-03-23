@@ -1033,6 +1033,16 @@ elements.chartCanvas.addEventListener("pointerdown", (event) => {
   drawChart();
 });
 
+elements.chartCanvas.addEventListener("click", (event) => {
+  const index = updateUobChartHoverFromClientX(event.clientX);
+  if (index == null) {
+    return;
+  }
+  state.chartPinnedIndex = index;
+  state.chartHoverIndex = index;
+  drawChart();
+});
+
 elements.chartCanvas.addEventListener("touchstart", (event) => {
   const touch = event.touches[0];
   if (!touch) {
@@ -1068,6 +1078,12 @@ elements.chartCanvas.addEventListener("mouseleave", () => {
 
 elements.chartCanvas.addEventListener("touchend", () => {
   // Keep the last tapped point visible on mobile.
+});
+
+elements.chartCanvas.addEventListener("dblclick", () => {
+  state.chartHoverIndex = null;
+  state.chartPinnedIndex = null;
+  drawChart();
 });
 
 elements.addHoldingBtn.addEventListener("click", () => {
