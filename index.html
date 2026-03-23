@@ -4,10 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UOB Gold Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <script>
+    const assetVersion = new URLSearchParams(window.location.search).get("reload") || "v1";
+    document.write(`<link rel="preconnect" href="https://fonts.googleapis.com">`);
+    document.write(`<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>`);
+    document.write(`<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">`);
+    document.write(`<link rel="stylesheet" href="styles.css?v=${assetVersion}">`);
+  </script>
 </head>
 <body>
   <div class="page-shell">
@@ -273,6 +276,8 @@
     </main>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    document.write(`<script src="app.js?v=${assetVersion}"><\/script>`);
+  </script>
 </body>
 </html>
