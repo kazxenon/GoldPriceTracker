@@ -23,6 +23,7 @@ const elements = {
   latestTableBody: document.getElementById("latestTableBody"),
   chartCanvas: document.getElementById("historyChart"),
   chartEmpty: document.getElementById("chartEmpty"),
+  chartStatus: document.getElementById("chartStatus"),
   globalGoldLatestValue: document.getElementById("globalGoldLatestValue"),
   globalGoldNote: document.getElementById("globalGoldNote"),
   globalGoldStartValue: document.getElementById("globalGoldStartValue"),
@@ -471,6 +472,10 @@ function drawChartToCanvas({ canvas, emptyState, entries, granularity }) {
 function drawChart() {
   const productHistory = getProductHistory(state.selectedProductId);
   const filtered = applyRange(productHistory);
+  const summarized = summarizeEntries(filtered, elements.granularitySelect.value);
+
+  elements.chartStatus.textContent = `${productHistory.length} raw snapshots, ${filtered.length} in selected window, ${summarized.length} grouped points shown.`;
+
   drawChartToCanvas({
     canvas: elements.chartCanvas,
     emptyState: elements.chartEmpty,
