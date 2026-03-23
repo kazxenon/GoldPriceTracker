@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UOB Gold Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Live from UOB</p>
+        <h1>Track UOB Gold Prices and Movement</h1>
+        <p class="lead">
+          This app pulls the same live gold feed used on UOB’s rates page, stores snapshots locally,
+          and lets you chart price movement by day, month, or year.
+        </p>
+        <div class="hero-actions">
+          <button id="refreshBtn" class="primary-button" type="button">Reload saved prices</button>
+          <a class="ghost-link" href="https://www.uobgroup.com/online-rates/gold-and-silver-prices.page" target="_blank" rel="noreferrer">Open UOB source</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <p class="mini-label">Default tracked product</p>
+        <strong>Gold Savings Account</strong>
+        <span>1 GM</span>
+        <p class="mini-note">You can switch to any UOB gold bar, coin, or certificate product below.</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel spotlight-panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">Today</p>
+            <h2>Current UOB gold price</h2>
+          </div>
+          <div class="meta-block">
+            <span id="uobTimestamp">Waiting for the first fetch…</span>
+            <span id="appTimestamp"></span>
+          </div>
+        </div>
+
+        <div class="controls-grid">
+          <label class="control">
+            <span>Gold product</span>
+            <select id="productSelect"></select>
+          </label>
+          <label class="control">
+            <span>Chart window</span>
+            <select id="rangeSelect">
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last 12 months</option>
+              <option value="all">All saved history</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Group chart by</span>
+            <select id="granularitySelect">
+              <option value="day">Days</option>
+              <option value="month">Months</option>
+              <option value="year">Years</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="price-grid">
+          <article class="price-card sell">
+            <span class="price-label">Bank sells</span>
+            <strong id="bankSellValue">-</strong>
+            <span id="sellDelta" class="delta-text">Need at least two snapshots to show movement.</span>
+          </article>
+          <article class="price-card buy">
+            <span class="price-label">Bank buys</span>
+            <strong id="bankBuyValue">-</strong>
+            <span id="buyDelta" class="delta-text">Snapshots are stored locally in this app.</span>
+          </article>
+          <article class="price-card history">
+            <span class="price-label">Saved snapshots</span>
+            <strong id="snapshotCount">0</strong>
+            <span id="historyNote" class="delta-text">Refresh regularly to build a richer chart.</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel holdings-panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">Your UOB Gold</p>
+            <h2>Buyback difference tracker</h2>
+          </div>
+          <p class="table-note">Pick any UOB gold product, enter the price you bought from the bank, and compare it to UOB’s current bank buy price.</p>
+        </div>
+
+        <div class="controls-grid holdings-controls">
+          <label class="control">
+            <span>UOB product</span>
+            <select id="holdingProductSelect"></select>
+          </label>
+          <label class="control">
+            <span>Price bought from bank</span>
+            <input id="holdingBoughtPriceInput" type="number" min="0" step="0.01" placeholder="Enter your purchase price">
+          </label>
+          <div class="control tracker-note">
+            <span>Action</span>
+            <button id="addHoldingBtn" class="primary-button" type="button">Add product</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Bought price</th>
+                <th>UOB buys now</th>
+                <th>Difference</th>
+                <th>Difference %</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="holdingsTableBody">
+              <tr class="empty-row">
+                <td colspan="6">No saved products yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel chart-panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">Movement</p>
+            <h2>Price history</h2>
+          </div>
+          <div class="legend">
+            <span><i class="legend-swatch sell"></i>Bank sells</span>
+            <span><i class="legend-swatch buy"></i>Bank buys</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="historyChart" width="1200" height="460"></canvas>
+          <div id="chartEmpty" class="chart-empty">
+            Save a few live snapshots and the chart will start showing movement here.
+          </div>
+        </div>
+      </section>
+
+      <section class="panel history-two-year-panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">Global Gold</p>
+            <h2>Interactive gold history</h2>
+          </div>
+          <p class="table-note">Custom chart with exact hover values, using historical gold prices plus daily USD to SGD conversion.</p>
+        </div>
+
+        <div class="controls-grid secondary-controls">
+          <label class="control">
+            <span>Currency</span>
+            <select id="globalGoldCurrencySelect">
+              <option value="USD" selected>USD</option>
+              <option value="SGD">SGD</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Unit</span>
+            <select id="globalGoldUnitSelect">
+              <option value="ozt" selected>Troy ounce</option>
+              <option value="gram">Gram</option>
+              <option value="kg">Kilogram</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>View</span>
+            <select id="globalGoldViewSelect">
+              <option value="day">Day</option>
+              <option value="month">Month</option>
+              <option value="year" selected>Year</option>
+            </select>
+          </label>
+          <div class="control tracker-note">
+            <span>Source</span>
+            <strong>FreeGoldAPI + Frankfurter</strong>
+          </div>
+          <article class="price-card history compact-card">
+            <span class="price-label">Latest point</span>
+            <strong id="globalGoldLatestValue">-</strong>
+            <span id="globalGoldNote" class="delta-text">Move your cursor across the chart to inspect exact prices.</span>
+          </article>
+        </div>
+
+        <div class="price-grid secondary-price-grid">
+          <article class="price-card sell">
+            <span class="price-label">Start of selected view</span>
+            <strong id="globalGoldStartValue">-</strong>
+            <span id="globalGoldStartDate" class="delta-text">-</span>
+          </article>
+          <article class="price-card buy">
+            <span class="price-label">Change over selected view</span>
+            <strong id="globalGoldChangeValue">-</strong>
+            <span id="globalGoldChangeDate" class="delta-text">-</span>
+          </article>
+          <article class="price-card history">
+            <span class="price-label">Points plotted</span>
+            <strong id="globalGoldPointCount">0</strong>
+            <span id="globalGoldUpdatedAt" class="delta-text">Waiting for history data.</span>
+          </article>
+        </div>
+
+        <div class="chart-wrap goldprice-widget-wrap">
+          <div class="custom-chart-shell" id="globalGoldChartShell">
+            <canvas id="globalGoldChart" width="1200" height="460"></canvas>
+            <div id="globalGoldTooltip" class="chart-tooltip chart-tooltip-hidden"></div>
+          </div>
+          <div id="globalGoldEmpty" class="chart-empty">Loading global gold history…</div>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">Reference</p>
+            <h2>Latest UOB gold list</h2>
+          </div>
+          <p class="table-note">Silver is intentionally excluded here so the list stays focused on gold products.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Unit</th>
+                <th>Bank sells</th>
+                <th>Bank buys</th>
+              </tr>
+            </thead>
+            <tbody id="latestTableBody">
+              <tr class="empty-row">
+                <td colspan="4">No UOB data loaded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
