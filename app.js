@@ -538,6 +538,22 @@ function drawChart() {
   });
 }
 
+function updateUobChartHoverFromClientX(clientX) {
+  const points = state.chartGroupedPoints;
+  if (points.length < 2) {
+    return;
+  }
+
+  const rect = elements.chartCanvas.getBoundingClientRect();
+  const relativeX = ((clientX - rect.left) / rect.width) * elements.chartCanvas.width;
+  const paddingLeft = 82;
+  const plotWidth = elements.chartCanvas.width - 82 - 28;
+  const rawIndex = ((relativeX - paddingLeft) / plotWidth) * (points.length - 1);
+  const clampedIndex = Math.max(0, Math.min(points.length - 1, Math.round(rawIndex)));
+  state.chartHoverIndex = clampedIndex;
+  drawChart();
+}
+
 function humanUnit(unit) {
   if (unit === "gram") {
     return "gram";
@@ -981,24 +997,36 @@ elements.globalGoldChart.addEventListener("mouseleave", () => {
 });
 
 elements.chartCanvas.addEventListener("mousemove", (event) => {
-  const points = state.chartGroupedPoints;
-  if (points.length < 2) {
+  updateUobChartHoverFromClientX(event.clientX);
+});
+
+elements.chartCanvas.addEventListener("click", (event) => {
+  updateUobChartHoverFromClientX(event.clientX);
+});
+
+elements.chartCanvas.addEventListener("touchstart", (event) => {
+  const touch = event.touches[0];
+  if (!touch) {
     return;
   }
+  updateUobChartHoverFromClientX(touch.clientX);
+}, { passive: true });
 
-  const rect = elements.chartCanvas.getBoundingClientRect();
-  const relativeX = ((event.clientX - rect.left) / rect.width) * elements.chartCanvas.width;
-  const paddingLeft = 82;
-  const plotWidth = elements.chartCanvas.width - 82 - 28;
-  const rawIndex = ((relativeX - paddingLeft) / plotWidth) * (points.length - 1);
-  const clampedIndex = Math.max(0, Math.min(points.length - 1, Math.round(rawIndex)));
-  state.chartHoverIndex = clampedIndex;
-  drawChart();
-});
+elements.chartCanvas.addEventListener("touchmove", (event) => {
+  const touch = event.touches[0];
+  if (!touch) {
+    return;
+  }
+  updateUobChartHoverFromClientX(touch.clientX);
+}, { passive: true });
 
 elements.chartCanvas.addEventListener("mouseleave", () => {
   state.chartHoverIndex = null;
   drawChart();
+});
+
+elements.chartCanvas.addEventListener("touchend", () => {
+  // Keep the last tapped point visible on mobile.
 });
 
 elements.addHoldingBtn.addEventListener("click", () => {
