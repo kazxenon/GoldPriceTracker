@@ -246,28 +246,6 @@
           <div id="globalGoldEmpty" class="chart-empty">Loading global gold history…</div>
         </div>
 
-        <div class="forecast-block">
-          <div class="panel-head forecast-head">
-            <div>
-              <p class="section-kicker">Experimental Forecast</p>
-              <h2>Projected gold path</h2>
-            </div>
-            <p class="table-note">Compact trend-based estimate from recent history. Use it as a reference, not a promise.</p>
-          </div>
-          <div class="forecast-grid" id="forecastCards">
-            <article class="price-card history compact-card">
-              <span class="price-label">Forecast</span>
-              <strong>-</strong>
-              <span class="delta-text">Loading forecast…</span>
-            </article>
-          </div>
-          <div class="chart-wrap forecast-chart-wrap">
-            <div class="custom-chart-shell">
-              <canvas id="forecastChart" width="1200" height="280"></canvas>
-            </div>
-            <div id="forecastEmpty" class="chart-empty">Loading forecast…</div>
-          </div>
-        </div>
       </section>
 
       <section class="panel table-panel">
@@ -294,6 +272,29 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section class="panel forecast-block">
+        <div class="panel-head forecast-head">
+          <div>
+            <p class="section-kicker">Experimental Forecast</p>
+            <h2>Projected gold path</h2>
+          </div>
+          <p class="table-note">Compact trend-based estimate from recent history. Use it as a reference, not a promise.</p>
+        </div>
+        <div class="forecast-grid" id="forecastCards">
+          <article class="price-card history compact-card">
+            <span class="price-label">Forecast</span>
+            <strong>-</strong>
+            <span class="delta-text">Loading forecast…</span>
+          </article>
+        </div>
+        <div class="chart-wrap forecast-chart-wrap">
+          <div class="custom-chart-shell">
+            <canvas id="forecastChart" width="1200" height="280"></canvas>
+          </div>
+          <div id="forecastEmpty" class="chart-empty">Loading forecast…</div>
         </div>
       </section>
     </main>

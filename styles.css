@@ -377,6 +377,11 @@ input[type="number"] {
   min-height: 280px;
 }
 
+.forecast-value {
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem) !important;
+  overflow-wrap: anywhere;
+}
+
 .custom-chart-shell {
   width: 100%;
   min-height: 460px;

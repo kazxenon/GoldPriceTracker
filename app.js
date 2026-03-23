@@ -789,17 +789,34 @@ function buildForecast(points) {
     ? Math.sqrt(returns.reduce((sum, value) => sum + ((value - averageReturn) ** 2), 0) / returns.length)
     : 0;
   const latest = points[points.length - 1];
+  const boundedReturn = Math.max(-0.015, Math.min(0.015, averageReturn));
+  const boundedVolatility = Math.max(0.002, Math.min(0.04, volatility));
 
   return horizons.map((horizon) => {
-    const projected = latest.price * Math.exp(averageReturn * horizon.days);
-    const band = volatility * Math.sqrt(horizon.days) * 0.6;
+    const projected = latest.price * Math.exp(boundedReturn * Math.min(horizon.days, 120));
+    const band = boundedVolatility * Math.sqrt(Math.min(horizon.days, 90)) * 0.45;
+    const cappedProjected = Math.max(latest.price * 0.45, Math.min(latest.price * 2.4, projected));
+    const low = Math.max(latest.price * 0.3, cappedProjected * Math.exp(-band));
+    const high = Math.min(latest.price * 3.2, cappedProjected * Math.exp(band));
     return {
       ...horizon,
-      price: Number(projected.toFixed(2)),
-      low: Number((projected * Math.exp(-band)).toFixed(2)),
-      high: Number((projected * Math.exp(band)).toFixed(2)),
+      price: Number(cappedProjected.toFixed(2)),
+      low: Number(low.toFixed(2)),
+      high: Number(high.toFixed(2)),
     };
   });
+}
+
+function compactCurrency(value, selectedCurrency) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "-";
+  }
+  return new Intl.NumberFormat("en-SG", {
+    style: "currency",
+    currency: selectedCurrency,
+    notation: "compact",
+    maximumFractionDigits: value >= 1000 ? 1 : 2,
+  }).format(value);
 }
 
 function renderGlobalGoldSection() {
@@ -857,8 +874,8 @@ function renderForecastSection() {
   elements.forecastCards.innerHTML = forecast.map((entry) => `
     <article class="price-card history compact-card">
       <span class="price-label">${entry.label}</span>
-      <strong>${currency(entry.price, selectedCurrency)}</strong>
-      <span class="delta-text">${currency(entry.low, selectedCurrency)} to ${currency(entry.high, selectedCurrency)} per ${humanUnit(unit)}</span>
+      <strong class="forecast-value">${compactCurrency(entry.price, selectedCurrency)}</strong>
+      <span class="delta-text">${compactCurrency(entry.low, selectedCurrency)} to ${compactCurrency(entry.high, selectedCurrency)} per ${humanUnit(unit)}</span>
     </article>
   `).join("");
 
