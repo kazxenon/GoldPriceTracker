@@ -37,6 +37,9 @@ const elements = {
   globalGoldTooltip: document.getElementById("globalGoldTooltip"),
   globalGoldEmpty: document.getElementById("globalGoldEmpty"),
   globalGoldChartShell: document.getElementById("globalGoldChartShell"),
+  forecastCards: document.getElementById("forecastCards"),
+  forecastChart: document.getElementById("forecastChart"),
+  forecastEmpty: document.getElementById("forecastEmpty"),
   holdingProductSelect: document.getElementById("holdingProductSelect"),
   holdingBoughtPriceInput: document.getElementById("holdingBoughtPriceInput"),
   addHoldingBtn: document.getElementById("addHoldingBtn"),
@@ -59,6 +62,7 @@ const state = {
     summary: null,
     updatedAt: "",
     hoverIndex: null,
+    forecast: [],
   },
   holdings: loadHoldings(),
   loading: false,
@@ -754,6 +758,50 @@ async function buildGlobalGoldPayloadClient(selectedCurrency, unit, view) {
   };
 }
 
+function buildForecast(points) {
+  if (!points || points.length < 4) {
+    return [];
+  }
+
+  const horizons = [
+    { label: "3 days", days: 3 },
+    { label: "15 days", days: 15 },
+    { label: "1 month", days: 30 },
+    { label: "3 months", days: 90 },
+    { label: "6 months", days: 180 },
+    { label: "1 year", days: 365 },
+  ];
+
+  const recent = points.slice(-Math.min(points.length, 30));
+  const returns = [];
+  for (let index = 1; index < recent.length; index += 1) {
+    const previous = recent[index - 1].price;
+    const current = recent[index].price;
+    if (previous > 0 && current > 0) {
+      returns.push(Math.log(current / previous));
+    }
+  }
+
+  const averageReturn = returns.length
+    ? returns.reduce((sum, value) => sum + value, 0) / returns.length
+    : 0;
+  const volatility = returns.length
+    ? Math.sqrt(returns.reduce((sum, value) => sum + ((value - averageReturn) ** 2), 0) / returns.length)
+    : 0;
+  const latest = points[points.length - 1];
+
+  return horizons.map((horizon) => {
+    const projected = latest.price * Math.exp(averageReturn * horizon.days);
+    const band = volatility * Math.sqrt(horizon.days) * 0.6;
+    return {
+      ...horizon,
+      price: Number(projected.toFixed(2)),
+      low: Number((projected * Math.exp(-band)).toFixed(2)),
+      high: Number((projected * Math.exp(band)).toFixed(2)),
+    };
+  });
+}
+
 function renderGlobalGoldSection() {
   const { points, summary, currency: selectedCurrency, unit, view, updatedAt } = state.globalGold;
 
@@ -766,6 +814,8 @@ function renderGlobalGoldSection() {
     elements.globalGoldStartDate.textContent = "-";
     elements.globalGoldChangeDate.textContent = "-";
     elements.globalGoldUpdatedAt.textContent = "Waiting for history data.";
+    state.globalGold.forecast = [];
+    renderForecastSection();
     drawGlobalGoldChart();
     return;
   }
@@ -780,7 +830,118 @@ function renderGlobalGoldSection() {
   elements.globalGoldChangeDate.textContent = `To ${formatPointDate(latestPoint.date, view)} per ${humanUnit(unit)}`;
   elements.globalGoldUpdatedAt.textContent = `Updated ${formatApiTimestamp(updatedAt)}`;
   elements.globalGoldNote.textContent = `Hover the chart to see the exact ${selectedCurrency} gold price per ${humanUnit(unit)} in ${humanView(view)} view.`;
+  state.globalGold.forecast = buildForecast(points);
+  renderForecastSection();
   drawGlobalGoldChart();
+}
+
+function renderForecastSection() {
+  const forecast = state.globalGold.forecast || [];
+  const selectedCurrency = state.globalGold.currency;
+  const unit = state.globalGold.unit;
+
+  if (!forecast.length) {
+    elements.forecastCards.innerHTML = `
+      <article class="price-card history compact-card">
+        <span class="price-label">Forecast unavailable</span>
+        <strong>-</strong>
+        <span class="delta-text">Need more recent history to estimate a projection.</span>
+      </article>
+    `;
+    elements.forecastEmpty.style.display = "grid";
+    const ctx = elements.forecastChart.getContext("2d");
+    ctx.clearRect(0, 0, elements.forecastChart.width, elements.forecastChart.height);
+    return;
+  }
+
+  elements.forecastCards.innerHTML = forecast.map((entry) => `
+    <article class="price-card history compact-card">
+      <span class="price-label">${entry.label}</span>
+      <strong>${currency(entry.price, selectedCurrency)}</strong>
+      <span class="delta-text">${currency(entry.low, selectedCurrency)} to ${currency(entry.high, selectedCurrency)} per ${humanUnit(unit)}</span>
+    </article>
+  `).join("");
+
+  drawForecastChart(forecast, selectedCurrency);
+}
+
+function drawForecastChart(forecast, selectedCurrency) {
+  const canvas = elements.forecastChart;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (forecast.length < 2) {
+    elements.forecastEmpty.style.display = "grid";
+    return;
+  }
+
+  elements.forecastEmpty.style.display = "none";
+
+  const width = canvas.width;
+  const height = canvas.height;
+  const padding = { top: 20, right: 24, bottom: 52, left: 82 };
+  const plotWidth = width - padding.left - padding.right;
+  const plotHeight = height - padding.top - padding.bottom;
+  const values = forecast.flatMap((entry) => [entry.low, entry.price, entry.high]);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const spread = maxValue - minValue || 1;
+  const yMin = minValue - spread * 0.08;
+  const yMax = maxValue + spread * 0.08;
+
+  const xForIndex = (index) => padding.left + (plotWidth * index) / (forecast.length - 1);
+  const yForValue = (value) => padding.top + ((yMax - value) / (yMax - yMin)) * plotHeight;
+
+  ctx.strokeStyle = "rgba(38, 46, 43, 0.14)";
+  ctx.lineWidth = 1;
+  ctx.font = "12px Space Grotesk";
+  ctx.fillStyle = "#44514a";
+
+  for (let step = 0; step <= 3; step += 1) {
+    const ratio = step / 3;
+    const y = padding.top + plotHeight * ratio;
+    const value = yMax - (yMax - yMin) * ratio;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+    ctx.fillText(currency(value, selectedCurrency), 12, y + 4);
+  }
+
+  ctx.strokeStyle = "rgba(31, 122, 100, 0.25)";
+  ctx.lineWidth = 10;
+  ctx.lineCap = "round";
+  forecast.forEach((entry, index) => {
+    const x = xForIndex(index);
+    ctx.beginPath();
+    ctx.moveTo(x, yForValue(entry.low));
+    ctx.lineTo(x, yForValue(entry.high));
+    ctx.stroke();
+  });
+
+  ctx.strokeStyle = "#1f7a64";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  forecast.forEach((entry, index) => {
+    const x = xForIndex(index);
+    const y = yForValue(entry.price);
+    if (index === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  });
+  ctx.stroke();
+
+  ctx.fillStyle = "#1f7a64";
+  forecast.forEach((entry, index) => {
+    const x = xForIndex(index);
+    const y = yForValue(entry.price);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillText(entry.label, x - 20, height - 18);
+  });
 }
 
 function drawGlobalGoldChart() {
