@@ -48,6 +48,7 @@ const state = {
   history: [],
   selectedProductId: "GSA|1 GM",
   chartHoverIndex: null,
+  chartPinnedIndex: null,
   chartGroupedPoints: [],
   globalGold: {
     currency: "USD",
@@ -467,10 +468,14 @@ function drawChartToCanvas({ canvas, emptyState, entries, granularity }) {
   drawSeries("bankSell", "#d08b2e");
   drawSeries("bankBuy", "#1f7a64");
 
-  if (canvas === elements.chartCanvas && state.chartHoverIndex != null) {
-    const activePoint = summarized[state.chartHoverIndex];
+  const activeIndex = canvas === elements.chartCanvas
+    ? (state.chartPinnedIndex ?? state.chartHoverIndex)
+    : null;
+
+  if (canvas === elements.chartCanvas && activeIndex != null) {
+    const activePoint = summarized[activeIndex];
     if (activePoint) {
-      const x = xForIndex(state.chartHoverIndex);
+      const x = xForIndex(activeIndex);
       const sellY = yForValue(activePoint.bankSell);
       const buyY = yForValue(activePoint.bankBuy);
 
@@ -527,6 +532,9 @@ function drawChart() {
   if (state.chartHoverIndex != null && state.chartHoverIndex >= summarized.length) {
     state.chartHoverIndex = null;
   }
+  if (state.chartPinnedIndex != null && state.chartPinnedIndex >= summarized.length) {
+    state.chartPinnedIndex = null;
+  }
 
   elements.chartStatus.textContent = `${productHistory.length} raw snapshots, ${filtered.length} in selected window, ${summarized.length} grouped points shown.`;
 
@@ -541,7 +549,7 @@ function drawChart() {
 function updateUobChartHoverFromClientX(clientX) {
   const points = state.chartGroupedPoints;
   if (points.length < 2) {
-    return;
+    return null;
   }
 
   const rect = elements.chartCanvas.getBoundingClientRect();
@@ -550,7 +558,15 @@ function updateUobChartHoverFromClientX(clientX) {
   const plotWidth = elements.chartCanvas.width - 82 - 28;
   const rawIndex = ((relativeX - paddingLeft) / plotWidth) * (points.length - 1);
   const clampedIndex = Math.max(0, Math.min(points.length - 1, Math.round(rawIndex)));
-  state.chartHoverIndex = clampedIndex;
+  return clampedIndex;
+}
+
+function setUobChartHover(clientX) {
+  const index = updateUobChartHoverFromClientX(clientX);
+  if (index == null) {
+    return;
+  }
+  state.chartHoverIndex = index;
   drawChart();
 }
 
@@ -948,15 +964,20 @@ elements.hardRefreshBtn.addEventListener("click", () => {
 
 elements.productSelect.addEventListener("change", (event) => {
   state.selectedProductId = event.target.value;
+  state.chartHoverIndex = null;
+  state.chartPinnedIndex = null;
   syncUi();
 });
 
 elements.rangeSelect.addEventListener("change", () => {
+  state.chartHoverIndex = null;
+  state.chartPinnedIndex = null;
   drawChart();
 });
 
 elements.granularitySelect.addEventListener("change", () => {
   state.chartHoverIndex = null;
+  state.chartPinnedIndex = null;
   drawChart();
 });
 
@@ -996,12 +1017,20 @@ elements.globalGoldChart.addEventListener("mouseleave", () => {
   drawGlobalGoldChart();
 });
 
-elements.chartCanvas.addEventListener("mousemove", (event) => {
-  updateUobChartHoverFromClientX(event.clientX);
+elements.chartCanvas.addEventListener("pointermove", (event) => {
+  if (event.pointerType === "mouse" || event.pointerType === "pen") {
+    setUobChartHover(event.clientX);
+  }
 });
 
-elements.chartCanvas.addEventListener("click", (event) => {
-  updateUobChartHoverFromClientX(event.clientX);
+elements.chartCanvas.addEventListener("pointerdown", (event) => {
+  const index = updateUobChartHoverFromClientX(event.clientX);
+  if (index == null) {
+    return;
+  }
+  state.chartPinnedIndex = index;
+  state.chartHoverIndex = index;
+  drawChart();
 });
 
 elements.chartCanvas.addEventListener("touchstart", (event) => {
@@ -1009,7 +1038,13 @@ elements.chartCanvas.addEventListener("touchstart", (event) => {
   if (!touch) {
     return;
   }
-  updateUobChartHoverFromClientX(touch.clientX);
+  const index = updateUobChartHoverFromClientX(touch.clientX);
+  if (index == null) {
+    return;
+  }
+  state.chartPinnedIndex = index;
+  state.chartHoverIndex = index;
+  drawChart();
 }, { passive: true });
 
 elements.chartCanvas.addEventListener("touchmove", (event) => {
@@ -1017,7 +1052,13 @@ elements.chartCanvas.addEventListener("touchmove", (event) => {
   if (!touch) {
     return;
   }
-  updateUobChartHoverFromClientX(touch.clientX);
+  const index = updateUobChartHoverFromClientX(touch.clientX);
+  if (index == null) {
+    return;
+  }
+  state.chartPinnedIndex = index;
+  state.chartHoverIndex = index;
+  drawChart();
 }, { passive: true });
 
 elements.chartCanvas.addEventListener("mouseleave", () => {

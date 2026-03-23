@@ -398,6 +398,8 @@ canvas {
   width: 100%;
   height: auto;
   display: block;
+  cursor: crosshair;
+  touch-action: pan-x pan-y;
 }
 
 .chart-empty {
