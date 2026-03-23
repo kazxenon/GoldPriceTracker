@@ -5,6 +5,7 @@ const FRANKFURTER_API_URL = "https://api.frankfurter.dev/v1/";
 
 const elements = {
   refreshBtn: document.getElementById("refreshBtn"),
+  hardRefreshBtn: document.getElementById("hardRefreshBtn"),
   productSelect: document.getElementById("productSelect"),
   rangeSelect: document.getElementById("rangeSelect"),
   granularitySelect: document.getElementById("granularitySelect"),
@@ -846,6 +847,12 @@ async function loadData({ refresh = false } = {}) {
 
 elements.refreshBtn.addEventListener("click", () => {
   loadData({ refresh: true });
+});
+
+elements.hardRefreshBtn.addEventListener("click", () => {
+  const url = new URL(window.location.href);
+  url.searchParams.set("reload", String(Date.now()));
+  window.location.replace(url.toString());
 });
 
 elements.productSelect.addEventListener("change", (event) => {
