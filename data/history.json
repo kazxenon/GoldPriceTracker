@@ -11121,5 +11121,232 @@
         "sortOrder": 27
       }
     ]
+  },
+  {
+    "fetchedAt": "2026-03-27T01:10:07+00:00",
+    "sourceDate": "27 March 2026",
+    "sourceTime": "084913",
+    "items": [
+      {
+        "id": "ACB|100 GM",
+        "code": "ACB",
+        "name": "ARGOR Cast Bar",
+        "unit": "100 GM",
+        "currency": "SGD",
+        "bankSell": 18396.0,
+        "bankBuy": 18017.0,
+        "sortOrder": 0
+      },
+      {
+        "id": "ALB|10 GM",
+        "code": "ALB",
+        "name": "ARGOR Heraeus Lunar Bar",
+        "unit": "10 GM",
+        "currency": "SGD",
+        "bankSell": 1929.0,
+        "bankBuy": 1799.0,
+        "sortOrder": 3
+      },
+      {
+        "id": "ALB|1 OZ",
+        "code": "ALB",
+        "name": "ARGOR Heraeus Lunar Bar",
+        "unit": "1 OZ",
+        "currency": "SGD",
+        "bankSell": 5808.0,
+        "bankBuy": 5602.0,
+        "sortOrder": 4
+      },
+      {
+        "id": "CTB|1 KILOBAR",
+        "code": "CTB",
+        "name": "Cast Bars",
+        "unit": "1 KILOBAR",
+        "currency": "SGD",
+        "bankSell": 183125.0,
+        "bankBuy": 180180.0,
+        "sortOrder": 5
+      },
+      {
+        "id": "GCT|1 KILOCERT",
+        "code": "GCT",
+        "name": "Gold Certificate",
+        "unit": "1 KILOCERT",
+        "currency": "SGD",
+        "bankSell": 183125.0,
+        "bankBuy": 180180.0,
+        "sortOrder": 6
+      },
+      {
+        "id": "GSA|1 GM",
+        "code": "GSA",
+        "name": "Gold Savings Account",
+        "unit": "1 GM",
+        "currency": "SGD",
+        "bankSell": 182.94,
+        "bankBuy": 180.18,
+        "sortOrder": 7
+      },
+      {
+        "id": "GBC|1 OZ",
+        "code": "GBC",
+        "name": "Gold Bullion Coins",
+        "unit": "1 OZ",
+        "currency": "SGD",
+        "bankSell": 5845.0,
+        "bankBuy": 5603.0,
+        "sortOrder": 8
+      },
+      {
+        "id": "GBC|1/2 OZ",
+        "code": "GBC",
+        "name": "Gold Bullion Coins",
+        "unit": "1/2 OZ",
+        "currency": "SGD",
+        "bankSell": 2908.0,
+        "bankBuy": 2801.0,
+        "sortOrder": 9
+      },
+      {
+        "id": "GBC|1/4 OZ",
+        "code": "GBC",
+        "name": "Gold Bullion Coins",
+        "unit": "1/4 OZ",
+        "currency": "SGD",
+        "bankSell": 1472.0,
+        "bankBuy": 1400.0,
+        "sortOrder": 10
+      },
+      {
+        "id": "GBC|1/10 OZ",
+        "code": "GBC",
+        "name": "Gold Bullion Coins",
+        "unit": "1/10 OZ",
+        "currency": "SGD",
+        "bankSell": 612.0,
+        "bankBuy": 559.0,
+        "sortOrder": 11
+      },
+      {
+        "id": "GBC|1/20 OZ(GNC,SLC &GML)",
+        "code": "GBC",
+        "name": "Gold Bullion Coins",
+        "unit": "1/20 OZ(GNC,SLC &GML)",
+        "currency": "SGD",
+        "bankSell": 330.0,
+        "bankBuy": 279.0,
+        "sortOrder": 12
+      },
+      {
+        "id": "PGL|100 GM",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "100 GM",
+        "currency": "SGD",
+        "bankSell": 18430.0,
+        "bankBuy": 18017.0,
+        "sortOrder": 13
+      },
+      {
+        "id": "PGL|50 GM",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "50 GM",
+        "currency": "SGD",
+        "bankSell": 9254.0,
+        "bankBuy": 9007.0,
+        "sortOrder": 14
+      },
+      {
+        "id": "PGL|20 GM",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "20 GM",
+        "currency": "SGD",
+        "bankSell": 3742.0,
+        "bankBuy": 3601.0,
+        "sortOrder": 15
+      },
+      {
+        "id": "PGL|10 GM",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "10 GM",
+        "currency": "SGD",
+        "bankSell": 1965.0,
+        "bankBuy": 1799.0,
+        "sortOrder": 16
+      },
+      {
+        "id": "PGL|5 GM",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "5 GM",
+        "currency": "SGD",
+        "bankSell": 983.0,
+        "bankBuy": 898.0,
+        "sortOrder": 17
+      },
+      {
+        "id": "PGL|2.5 GM",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "2.5 GM",
+        "currency": "SGD",
+        "bankSell": 519.0,
+        "bankBuy": 448.0,
+        "sortOrder": 18
+      },
+      {
+        "id": "PGL|1 GM",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "1 GM",
+        "currency": "SGD",
+        "bankSell": 223.0,
+        "bankBuy": 178.0,
+        "sortOrder": 19
+      },
+      {
+        "id": "PGL|1 OZ",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "1 OZ",
+        "currency": "SGD",
+        "bankSell": 5845.0,
+        "bankBuy": 5602.0,
+        "sortOrder": 20
+      },
+      {
+        "id": "PGL|1/2 OZ",
+        "code": "PGL",
+        "name": "PAMP Gold Bars",
+        "unit": "1/2 OZ",
+        "currency": "SGD",
+        "bankSell": 2908.0,
+        "bankBuy": 2800.0,
+        "sortOrder": 21
+      },
+      {
+        "id": "ULB|1 OZ",
+        "code": "ULB",
+        "name": "UOB Lunar Bar",
+        "unit": "1 OZ",
+        "currency": "SGD",
+        "bankSell": 5834.0,
+        "bankBuy": 5602.0,
+        "sortOrder": 24
+      },
+      {
+        "id": "ULB|10 GM",
+        "code": "ULB",
+        "name": "UOB Lunar Bar",
+        "unit": "10 GM",
+        "currency": "SGD",
+        "bankSell": 1955.0,
+        "bankBuy": 1799.0,
+        "sortOrder": 27
+      }
+    ]
   }
 ]
